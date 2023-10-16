@@ -1,6 +1,8 @@
 let $selectRow = null;
 let selectingRow = 'ui-selected';
 const indentW = 12;
+let dateState = [];
+const widthAdd = 19;
 
 
 // 初期表示時
@@ -41,3 +43,19 @@ $(function() {
 		dateState[tr.arr('id')] = date.position().left;
 	}
 });
+
+//複数選択
+function multiDrag(element) {
+	$(element).selectable({
+		disable: 'sort-handle, .ui-selected',
+
+		selected: function (a, b) {
+			$selectRow = $('.' + selectingRow).children('td:nth-child(2)');
+		}
+	}).sortable({
+		axis: 'y',
+		items: '> tr',
+		handle: 'td, .sort-handle. .ui-selected',
+
+	})
+}
