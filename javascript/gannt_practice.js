@@ -30,8 +30,10 @@ $(function() {
 	});
 //インデントleft処理
 	$('#indent_left').on('click', function () {
+		if($selectedRow != null){
 		let indent = parseInt($selectRow.css('textIndent')) + indentW;
 		if (0 <= indent) $selectRow.css('textIndent', indent + 'px');
+	}
 	});
 
 //課題03
@@ -40,14 +42,14 @@ $(function() {
 
 	for (let i = 13; i <= days; i++) {
 		let date = $(tr.children('tr:nth-child(' + i + ')'));
-		dateState[tr.arr('id')] = date.position().left;
+		dateState[date.attr('id')] = date.position().left;
 	}
 });
 
 //複数選択
 function multiDrag(element) {
 	$(element).selectable({
-		disable: 'sort-handle, .ui-selected',
+		cancel: 'sort-handle, .ui-selected',
 
 		selected: function (a, b) {
 			$selectRow = $('.' + selectingRow).children('td:nth-child(2)');
@@ -56,6 +58,26 @@ function multiDrag(element) {
 		axis: 'y',
 		items: '> tr',
 		handle: 'td, .sort-handle. .ui-selected',
-
+		helper: function (a, c) {
+			if(!c.hasClass('ui-selected')) {
+			c.parent().children('.ui-selected').removeClass('ui-selected');
+			c.addClass('ui-selected');
+			}
+			let selected = c.parent().children('.ui-selected').clone();
+			high = c.Height() * selected.length;
+			c.data('multidrag', selected).sibling('.ui-selected').remove();
+			return$('<tr/>').append(selected);
+		},
+		cursor: 'move',
+		start: function (a, d) {
+			d.placeholder.css({'height':high});
+		},
+		stop: function (a, d) {
+			let selected = d.item.data('multidrag');
+			d.item.after(selected);
+			d.item.remove();
+			selected.removeClass('ui-selected');
+			$(selected).children('td').removeClass('ui-selected');
+		}
 	})
 }
