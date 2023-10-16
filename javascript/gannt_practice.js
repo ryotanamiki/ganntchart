@@ -18,11 +18,16 @@ $(function() {
 //課題01ーー複数行入れ替え
 	multiDrag($('#column_table_body'));
 
-//課題02--インデント処理
+//課題02--インデントright処理
 	$('#indent_right').on('click', function () {
 		if ($selectRow != null) {
-			let indent = parseInt($selectRow.css('textIndent')) + indentW
+			let indent = parseInt($selectRow.css('textIndent')) + indentW;
 			if (indent <= (indentW * 3)) $selectRow.css('textIndent', indent + 'px');
 		}
-	})
+	});
+//インデントleft処理
+	$('#indent_left').on('click', function () {
+		let indent = parseInt($selectRow.css('textIndent')) + indentW;
+		if (0 <= indent) $selectRow.css('textIndent', indent + 'px');
+	});
 });
