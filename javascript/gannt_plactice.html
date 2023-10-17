@@ -154,21 +154,21 @@
                     <td class="fixed task_title">ユーザー登録画面作成</td>
                     <td>Bさん</td>
                     <td>
-                        <input type="range" step="10" value="0" id="prog_2" class="prog" min="0" max="100">
+                        <input type="range" step="10" value="0" id="prog_2" class="prog" onChange="updateProg(this)" min="0" max="100">
                     </td>
                     <td>進行中</td>
                     <td>
-                        <input type="date" id="planSt_2" class="planSt dateInpt">
+                        <input type="date" id="planSt_2" class="planSt dateInpt" onChange="stDays(this, true);calcDifDay(this, true)">
                     </td>
                     <td>
-                        <input type="date" id="planEd_2" class="planEd dateInpt">
+                        <input type="date" id="planEd_2" class="planEd dateInpt" onChange="edDays(this, true);calcDifDay(this, true)">
                     </td>
                     <td id="planDif_2"></td>
                     <td>
-                        <input type="date" id="actSt_2" class="actSt dateInpt">
+                        <input type="date" id="actSt_2" class="actSt dateInpt" onChange="stDays(this, false);calcDifDay(this, false)">
                     </td>
                     <td>
-                        <input type="date" id="actEd_2" class="actEd dateInpt">
+                        <input type="date" id="actEd_2" class="actEd dateInpt" onChange="edDays(this, false);calcDifDay(this, false)">
                     </td>
                     <td id="actDif_2"></td>
                     <td></td>
@@ -196,21 +196,21 @@
                     <td class="fixed task_title">ユーザー削除画面作成</td>
                     <td>Cさん</td>
                     <td>
-                        <input type="range" step="10" value="0" id="prog_3" class="prog" min="0" max="100">
+                        <input type="range" step="10" value="0" id="prog_3" class="prog" onChange="updateProg(this)" min="0" max="100">
                     </td>
                     <td>進行中</td>
                     <td>
-                        <input type="date" id="planSt_3" class="planSt dateInpt">
+                        <input type="date" id="planSt_3" class="planSt dateInpt" onChange="stDays(this, true);calcDifDay(this, true)">
                     </td>
                     <td>
-                        <input type="date" id="planEd_3" class="planEd dateInpt">
+                        <input type="date" id="planEd_3" class="planEd dateInpt" onChange="edDays(this, true);calcDifDay(this, true)">
                     </td>
                     <td id="planDif_3"></td>
                     <td>
-                        <input type="date" id="actSt_3" class="actSt dateInpt">
+                        <input type="date" id="actSt_3" class="actSt dateInpt" onChange="stDays(this, false);calcDifDay(this, false)">
                     </td>
                     <td>
-                        <input type="date" id="actEd_3" class="actEd dateInpt">
+                        <input type="date" id="actEd_3" class="actEd dateInpt" onChange="edDays(this, false);calcDifDay(this, false)">
                     </td>
                     <td id="actDif_3"></td>
                     <td></td>
@@ -236,5 +236,4 @@
         </table>
     </main>
 </body>
-
 </html>
