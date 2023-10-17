@@ -1,39 +1,34 @@
-// 課題1 - クリックした行
 let $selectedRow = null;
-// 課題1 - 選択中行クラス名
 const selectRow = "ui-selected";
-// 課題2 - インデント幅
 const indentPx = 12;
-// 課題4 - 日付位置マップ
 let datePositions = [];
-// 課題5 - width step
 const widAdd = 19;
 
 // 初期表示時
 $(function() {
-	
+
 	// CSS関連 - ヘッダー
 	const element = document.querySelector('.column_header');
 	// 横にスクロールした分、位置をずらす
 	element.style.left = -window.pageXOffset + 'px';
 	window.addEventListener('scroll', () => {
-	  element.style.left = -window.pageXOffset + 'px';
+	element.style.left = -window.pageXOffset + 'px';
 	});
 
-/* 課題1 */
+//課題1
 
 	// 複数選択行入れ替え
 	multiDrag($("#column_table_body"));
-	
-/* 課題2 */
-	// →インデント処理
+
+//課題2
+	// インデントright処理
 	$("#indent_right").on('click',function(){
 		if($selectedRow != null){
 			let indent = parseInt($selectedRow.css("text-indent")) + indentPx;
 			if(indent <= (indentPx * 3)) $selectedRow.css("text-indent", indent + "px");
 		}
 	});
-	// ←インデント処理
+	// インデントleft処理
 	$("#indent_left").on('click',function(){
 		if($selectedRow != null){
 			let indent = parseInt($selectedRow.css("text-indent")) - indentPx;
@@ -41,19 +36,18 @@ $(function() {
 		}
 	});
 
-/* 課題4 */
+//課題4
 
 	// 日付ヘッダーリスト
-	let $tarTr = $(".column_header tr:nth-child(2)");
-	let dayLen = $(".column_header tr:nth-child(2) th").length;
-	// 各ヘッダー位置をマップに設定
-	for(let i = 13; i <= dayLen; i++){
-		let $dateTh = $($tarTr.children("th:nth-child(" + i + ")"));
-		datePositions[$dateTh.attr("id")] = $dateTh.position().left;
+	let tr = $(".column_header tr:nth-child(2)");
+	let day = $(".column_header tr:nth-child(2) th").length;
+	for(let i = 13; i <= day; i++){
+		let date = $(tr.children("th:nth-child(" + i + ")"));
+		datePositions[date.attr("id")] = date.position().left;
 	}
 });
-	
-// 課題1 - 複数選択ドラッグ
+
+//複数選択ドラッグ
 function multiDrag(emt) {
 	$(emt).selectable({
 		cancel: '.sort-handle, .ui-selected',
@@ -89,45 +83,67 @@ function multiDrag(emt) {
 		}
 	});
 }
-// 課題3
-function getIndex(emt){
-	return $(emt).attr("id").split("_")[1];
+// 課題3 - 日数計算
+function calcDifDay(elem, result){
+	let tar = result ? "plan" : "act";
+	let index = getIndex(elem);
+	let stDays = $("#"+tar+"St_" + index);
+	let edDays = $("#"+tar+"Ed_" + index);
+	if(!isEmpty(stDays.val()) && !isEmpty(edDays.val())){
+		let diff = diffDays(new Date(edDays.val()), new Date(stDays.val()));
+		$("#"+tar+"Dif_" + index).text(diff);
+	}
+}
+// 課題4 - 開始日変更時バー移動
+function moveSt(elem, result){
+	// 開始日
+	let st = $(elem);
+	let index = getIndex(st);
+	// 移動位置
+	let stPos = datePositions[st.val()];
+	// バー変更
+	let tar = result ? "plan" : "act";
+	let bar = $("#"+tar+"Bar_" + index);
+	bar.css("left", stPos + "px");
+	
+	let ed = $("#"+tar+"Ed_" + index);
+	let barPos = datePositions[ed.val()];
+	bar.css("width", barPos + widAdd - stPos + "px");
+}
+// 課題5 - 終了日変更時バー幅変更
+function moveEd(elem, result){
+	// 終了日
+	let ed = $(elem);
+	let index = getIndex(ed);
+	// 移動位置
+	let barPos = datePositions[ed.val()];
+	// 開始日位置
+	let tar = result ? "plan" : "act";
+	let st = $("#" + tar + "St_" + index);
+	let stPos = datePositions[st.val()];
+	// バー変更
+	let bar = $("#" + tar + "Bar_" + index);
+	bar.css("width", barPos + widAdd - stPos + "px");
+}
+// 課題6 - 進捗率描画
+function updateProg(elem){
+	let index = getIndex(elem);
+	$("#progBar_" + index).css("width", elem.value + "%");
 }
 
+/* 汎用処理 ------------------------------------------------------------*/
+
+// インデックス取得
+function getIndex(elem){
+	return $(elem).attr("id").split("_")[1];
+}
+// 日付差
 function diffDays(ed, st){
 	var diffTime = ed.getTime() - st.getTime();
 	var diffDay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 	return ++diffDay;
 }
-
-function empty(val){
+// 空文字チェック
+function isEmpty(val){
 	return val == null || val == "";
-}
-// 日数計算
-function calcDifDay(emt, result){
-	let tar = result ? "plan" : "act";
-	let index = getIndex(elem);
-	let $planSt = $("#"+tar+"St_" + index);
-	let $planEd = $("#"+tar+"Ed_" + index);
-	if(!empty($planSt.val()) && !empty($planEd.val())){
-		let diff = diffDays(new Date($planEd.val()), new Date($planSt.val()));
-		$("#"+tar+"Dif_" + index).text(diff);
-	}
-}
-
-//開始日変更バー
-function stDays(emt, plan) {
-	let st = $(emt);
-	let index = getIndex(st);
-
-	let stPost = datePositions[st.val()];
-
-	//開始位置
-	let tar = plan ? "plan" : "act";
-	let bar = $("#" + tar + "Bar_" + index);
-	bar.css("left", stPost + "px");
-
-	let ed = $("#" + tar + "Ed_" + index);
-	let barPost = datePositions[ed.val()];
-	bar.css("width", barPost + widAdd - stPost + "px");
 }

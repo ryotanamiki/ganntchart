@@ -112,21 +112,21 @@
                     <td class="fixed task_title">ユーザー一覧画面作成</td>
                     <td>Aさん</td>
                     <td>
-                        <input type="range" step="10" value="0" id="prog_1" class="prog" min="0" max="100">
+                        <input type="range" step="10" value="0" id="prog_1" class="prog" onChange="updateProg(this)" min="0" max="100">
                     </td>
                     <td>進行中</td>
                     <td>
-                        <input type="date" id="planSt_1" class="planSt dateInpt">
+                        <input type="date" id="planSt_1" class="planSt dateInpt" onChange="moveSt(this, true);calcDifDay(this, true)">
                     </td>
                     <td>
-                        <input type="date" id="planEd_1" class="planEd dateInpt">
+                        <input type="date" id="planEd_1" class="planEd dateInpt" onChange="moveEd(this, true);calcDifDay(this, true)">
                     </td>
                     <td id="planDif_1"></td>
                     <td>
-                        <input type="date" id="actSt_1" class="actSt dateInpt">
+                        <input type="date" id="actSt_1" class="actSt dateInpt" onChange="moveSt(this, false);calcDifDay(this, false)">
                     </td>
                     <td>
-                        <input type="date" id="actEd_1" class="actEd dateInpt">
+                        <input type="date" id="actEd_1" class="actEd dateInpt" onChange="moveEd(this, false);calcDifDay(this, false)">
                     </td>
                     <td id="actDif_1"></td>
                     <td></td>
