@@ -81,3 +81,16 @@ function multiDrag(emt) {
 		}
 	});
 }
+//課題03
+//日数計算
+	function calDifDays(emt, result) {
+		let tar = result ? "plan" : "act";
+		let index = getIndex(emt);
+		let $planSt = $("#" + tar + "St_" + index);
+		let $planEd = $("#" + tar + "Ed_" + index);
+		if (!empty($planSt.val()) && (!empty($planEd.val()))) {
+			let diff = diffDays(new Date($planEd.val()), new Date($planSt.val()));
+			$("#" + tar + "Diff_" + index).text(diff);
+		}
+}
+//開始日のバー移動
