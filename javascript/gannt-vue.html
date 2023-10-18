@@ -4,7 +4,6 @@
 <head>
     <title>ガントチャート</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="jquery-ui.min.css" rel="stylesheet">
     <link href="/css/gannt_practice.css" rel="stylesheet">
 </head>
 
@@ -87,163 +86,200 @@
                         <th>木</th>
                     </tr>
                 </thead>
-                    </table>
+            </table>
 
             <table class="column_body column_table">
                 <tbody id="column_table_body">
-                    <tr v-for="task in tasks" :key="task.id">
+                    <tr v-for="task in tasks" :key="task.id" :class="{ selected: task.selected }" @click="toggleSelection(task)"
+                        @dragstart="handleDragStart($event, task)" draggable="true" @dragover="handleDragOver($event)"
+                        @drop="handleDrop($event, task)">
                         <td class="fixed">{{ task.id }}</td>
                         <td class="fixed task_title">{{ task.name }}</td>
                         <td>{{ task.assignee }}</td>
                         <td>
-                            <input type="range" step="10" v-model="task.progress" min="0" max="100">
+                            <input type="range" class="prog" step="10" v-model="task.progress" min="0" max="100">
                         </td>
                         <td>{{ task.status }}</td>
                         <td>
                             <input type="date" class="planSt dateInpt" v-model="task.planStart"
                                 @change="moveStart(task, true); calcDifDay(task, true)">
-                            </td>
-                            <td>
+                        </td>
+                        <td>
                             <input type="date" class="plaEd dateInpt" v-model="task.planEnd" @change="moveEnd(task, true); calcDifDay(task, true)">
                             </td>
                             <td>{{ task.planDuration }}</td>
                             <td>
                             <input type="date" class="actSt dateInpt" v-model="task.actualStart"
                                 @change="moveStart(task, false); calcDifDay(task, false)">
-                            </td>
-                            <td>
+                        </td>
+                        <td>
                             <input type="date" class="actEd dateInpt" v-model="task.actualEnd"
                                 @change="moveEnd(task, false); calcDifDay(task, false)">
-                            </td>
-                            <td>{{ task.actualDuration }}</td>
-                            <td></td>
-                            <td class="col_day">
-                                <div :style="{ width: task.planBarWidth + 'px' }" class="planBar bar">
-                                    <div :style="{ width: task.progress + '%' }" class="progBar"></div>
-                                </div>
-                                <div :style="{ width: task.actualBarWidth + 'px' }" class="actBar bar"></div>
-                            </td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            <td class="col_day"></td>
-                            </tr>
-                            </tbody>
-                            </table>
+                        </td>
+                        <td>{{ task.actualDuration }}</td>
+                        <td></td>
+                        <td class="col_day">
+                            <div :style="{ width: task.planBarWidth + 'px' }" class="planBar bar">
+                                <div :style="{ width: task.progress + '%' }" class="progBar"></div>
+                            </div>
+                            <div :style="{ width: task.actualBarWidth + 'px' }" class="actBar bar"></div>
+                        </td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        <td class="col_day"></td>
+                        </tr>
+                        </tbody>
+                        </table>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-<script>
-    new Vue({
-        el: '#app',
-        data: {
-            tasks: [
-                // タスクデータをここに配置
-                {
-                    id: 1,
-                    name: 'ユーザー一覧画面作成',
-                    assignee: 'Aさん',
-                    progress: 0,
-                    status: '進行中',
-                    planStart: '',
-                    planEnd: '',
-                    planDuration: '',
-                    actualStart: '',
-                    actualEnd: '',
-                    actualDuration: '',
-                    planBarWidth: 0,
-                    actualBarWidth: 0
-                },
-                {
-                    id: 2,
-                    name: 'ユーザー登録画面作成',
-                    assignee: 'Bさん',
-                    progress: 0,
-                    status: '進行中',
-                    planStart: '',
-                    planEnd: '',
-                    planDuration: '',
-                    actualStart: '',
-                    actualEnd: '',
-                    actualDuration: '',
-                    planBarWidth: 0,
-                    actualBarWidth: 0
-                },
-                {
-                    id: 3,
-                    name: 'ユーザー削除画面作成',
-                    assignee: 'Cさん',
-                    progress: 0,
-                    status: '進行中',
-                    planStart: '',
-                    planEnd: '',
-                    planDuration: '',
-                    actualStart: '',
-                    actualEnd: '',
-                    actualDuration: '',
-                    planBarWidth: 0,
-                    actualBarWidth: 0
-                }
-                // 他のタスクデータもここに配置
-            ]
-        },
-        methods: {
-            indentLeft: function () {
-                if ($selectedRow != null) {
-                    let indent = parseInt($selectedRow.css("text-indent")) - indentPx;
-                    if (0 <= indent) $selectedRow.css("text-indent", indent + "px");
-                }
-            },
-            indentRight: function () {
-                if ($selectedRow != null) {
-                    let indent = parseInt($selectedRow.css("text-indent")) + indentPx;
-                    if (indent <= indentPx * 3) $selectedRow.css("text-indent", indent + "px");
-                }
-            },
-            moveStart: function (task, isPlan) {
-                let stPos = datePositions[task.planStart];
-                let $bar = isPlan ? task.planBarWidth : task.actualBarWidth;
-                $bar = stPos + "px";
-
-                let edPos = datePositions[task.planEnd];
-                let width = edPos + widAdd - stPos + "px";
-                if (isPlan) {
-                    task.planBarWidth = width;
-                } else {
-                    task.actualBarWidth = width;
-                }
-            },
-            moveEnd: function (task, isPlan) {
-                let edPos = datePositions[task.planEnd];
-                let width = edPos + widAdd - task.planBarWidth + "px";
-                if (isPlan) {
-                    task.planBarWidth = width;
-                } else {
-                    task.actualBarWidth = width;
-                }
-            },
-            calcDifDay: function (task, isPlan) {
-                let stDate = isPlan ? task.planStart : task.actualStart;
-                let edDate = isPlan ? task.planEnd : task.actualEnd;
-                if (!isEmpty(stDate) && !isEmpty(edDate)) {
-                    let diff = diffDays(new Date(edDate), new Date(stDate));
-                    if (isPlan) {
-                        task.planDuration = diff;
-                    } else {
-                        task.actualDuration = diff;
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                tasks: [
+                    // タスクデータをここに配置
+                    {
+                        id: 1,
+                        name: 'ユーザー一覧画面作成',
+                        assignee: 'Aさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
+                    },
+                    {
+                        id: 2,
+                        name: 'ユーザー登録画面作成',
+                        assignee: 'Bさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
+                    },
+                    {
+                        id: 3,
+                        name: 'ユーザー削除画面作成',
+                        assignee: 'Cさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
                     }
-                }
-            }
-        }
+                ],
+                selectedTasks: [],
+            },
+            methods: {
+                indentLeft: function () {
+                    if ($selectedRow != null) {
+                        let indent = parseInt($selectedRow.css("text-indent")) - indentPx;
+                        if (0 <= indent) $selectedRow.css("text-indent", indent + "px");
+                    }
+                },
+                indentRight: function () {
+                    if ($selectedRow != null) {
+                        let indent = parseInt($selectedRow.css("text-indent")) + indentPx;
+                        if (indent <= indentPx * 3) $selectedRow.css("text-indent", indent + "px");
+                    }
+                },
+                moveStart: function (task, isPlan) {
+                    let stPos = datePositions[task.planStart];
+                    let $bar = isPlan ? task.planBarWidth : task.actualBarWidth;
+                    $bar = stPos + "px";
 
-    });
+                    let edPos = datePositions[task.planEnd];
+                    let width = edPos + widAdd - stPos + "px";
+                    if (isPlan) {
+                        task.planBarWidth = width;
+                    } else {
+                        task.actualBarWidth = width;
+                    }
+                },
+                moveEnd: function (task, isPlan) {
+                    let edPos = datePositions[task.planEnd];
+                    let width = edPos + widAdd - task.planBarWidth + "px";
+                    if (isPlan) {
+                        task.planBarWidth = width;
+                    } else {
+                        task.actualBarWidth = width;
+                    }
+                },
+                calcDifDay: function (task, isPlan) {
+                    let stDate = isPlan ? task.planStart : task.actualStart;
+                    let edDate = isPlan ? task.planEnd : task.actualEnd;
+                    if (!isEmpty(stDate) && !isEmpty(edDate)) {
+                        let diff = diffDays(new Date(edDate), new Date(stDate));
+                        if (isPlan) {
+                            task.planDuration = diff;
+                        } else {
+                            task.actualDuration = diff;
+                        }
+                    }
+                },
+                toggleSelection: function (task) {
+                    task.selected = !task.selected;
+                    if (task.selected) {
+                        this.selectedTasks.push(task);
+                    } else {
+                        const index = this.selectedTasks.indexOf(task);
+                        if (index > -1) {
+                            this.selectedTasks.splice(index, 1);
+                        }
+                    }
+                },
+
+                // 追加: 選択したタスクをドラッグ&ドロップで移動
+                handleDragStart(event, task) {
+                    event.dataTransfer.setData('text/plain', task.id.toString());
+                },
+                handleDragStart(event, task) {
+                    event.dataTransfer.setData('text/plain', task.id.toString());
+                },
+                handleDragOver: function (event) {
+                    event.preventDefault();
+                },
+                handleDrop(event, targetTask) {
+                    event.preventDefault();
+                    const taskId = parseInt(event.dataTransfer.getData('text/plain'));
+                    const taskToMove = this.tasks.find(task => task.id === taskId);
+                    if (taskToMove) {
+                        // ドラッグ&ドロップでタスクを移動
+                        const currentIndex = this.tasks.indexOf(taskToMove);
+                        const targetIndex = this.tasks.indexOf(targetTask);
+                        this.tasks.splice(currentIndex, 1);
+                        this.tasks.splice(targetIndex, 0, taskToMove);
+                    }
+                },
+
+            }
+
+        });
     </script>
 
 </body>

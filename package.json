@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "vue-multi-drag": "^0.3.2",
+    "vuedraggable": "^2.24.3"
+  }
+}
