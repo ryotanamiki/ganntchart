@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ガントチャート</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="/css/gannt_practice.css" rel="styleSheet">
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <span id="indentDiv">
+                <button @click="indentLeft">←</button>
+                <button @click="indentRight">→</button>
+            </span>
+        </header>
+
+        <main>
+            <draggable v-model="tasks" @end="onDragEnd">
+                <div v-for="task in tasks" :key="task.id" class="draggable-item">
+                    <table class="column_header column_table">
+                        <thead>
+                            <tr>
+                                <th rowspan="3" class="fixed">No</th>
+                                <th rowspan="3" class="fixed">作業名</th>
+                                <th rowspan="3">担当者</th>
+                                <th rowspan="3">進捗率</th>
+                                <th rowspan="3">状況</th>
+                                <th colspan="3">予定</th>
+                                <th colspan="3">実績</th>
+                                <th rowspan="3">先行</th>
+                                <th colspan="11">2023/2</th>
+                            </tr>
+                            <tr>
+                                <!-- 入力列 - 結合対象セル(CSS設定の兼ね合いで非表示セルを配置) -->
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <!-- 入力列 - 2行目 -->
+                                <th rowspan="2">開始日</th>
+                                <th rowspan="2">終了日</th>
+                                <th rowspan="2">日数</th>
+                                <th rowspan="2">開始日</th>
+                                <th rowspan="2">終了日</th>
+                                <th rowspan="2">日数</th>
+                                <th class="none"></th>
+                                <!-- 日付列 -->
+                                <th id="2023-02-20" class="col_day">20</th>
+                                <th id="2023-02-21" class="col_day">21</th>
+                                <th id="2023-02-22" class="col_day">22</th>
+                                <th id="2023-02-23" class="col_day">23</th>
+                                <th id="2023-02-24" class="col_day">24</th>
+                                <th id="2023-02-25" class="col_day">25</th>
+                                <th id="2023-02-26" class="col_day">26</th>
+                                <th id="2023-02-27" class="col_day">27</th>
+                                <th id="2023-02-28" class="col_day">28</th>
+                                <th id="2023-02-29" class="col_day">29</th>
+                                <th id="2023-02-30" class="col_day">30</th>
+                            </tr>
+                            <tr>
+                                <!-- 入力列 - 結合対象セル(CSS設定の兼ね合いで非表示セルを配置) -->
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <th class="none"></th>
+                                <!-- 日付列 -->
+                                <th>月</th>
+                                <th>火</th>
+                                <th>水</th>
+                                <th>木</th>
+                                <th>金</th>
+                                <th>土</th>
+                                <th>日</th>
+                                <th>月</th>
+                                <th>火</th>
+                                <th>水</th>
+                                <th>木</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <table class="column_body column_table">
+                        <tbody>
+                            <tr v-for="task in tasks" :key="task.id">
+                                <td class="fixed">{{ task.id }}</td>
+                                <td class="fixed task_title">{{ task.name }}</td>
+                                <td>{{ task.assignee }}</td>
+                                <td>
+                                    <input type="range" step="10" v-model="task.progress" min="0" max="100">
+                                </td>
+                                <td>{{ task.status }}</td>
+                                <td>
+                                    <input type="date" v-model="task.planStart"
+                                        @change="moveStart(task, true); calcDifDay(task, true)">
+                                </td>
+                                <td>
+                                    <input type="date" v-model="task.planEnd"
+                                        @change="moveEnd(task, true); calcDifDay(task, true)">
+                                </td>
+                                <td>{{ task.planDuration }}</td>
+                                <td>
+                                    <input type="date" v-model="task.actualStart"
+                                        @change="moveStart(task, false); calcDifDay(task, false)">
+                                </td>
+                                <td>
+                                    <input type="date" v-model="task.actualEnd"
+                                        @change="moveEnd(task, false); calcDifDay(task, false)">
+                                </td>
+                                <td>{{ task.actualDuration }}</td>
+                                <td></td>
+                                <td class="col_day">
+                                    <div :style="{ width: task.planBarWidth + 'px' }" class="planBar bar">
+                                        <div :style="{ width: task.progress + '%' }" class="progBar"></div>
+                                    </div>
+                                    <div :style="{ width: task.actualBarWidth + 'px' }" class="actBar bar"></div>
+                                </td>
+                                <!-- 他の日付列もここに配置 -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </draggable>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuedraggable/2.24.3/vuedraggable.umd.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                tasks: [
+                    {
+                        id: 1,
+                        name: 'ユーザー一覧画面作成',
+                        assignee: 'Aさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
+                    },
+                    {
+                        id: 2,
+                        name: 'ユーザー登録画面作成',
+                        assignee: 'Bさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
+                    },
+                    {
+                        id: 3,
+                        name: 'ユーザー削除画面作成',
+                        assignee: 'Cさん',
+                        progress: 0,
+                        status: '進行中',
+                        planStart: '',
+                        planEnd: '',
+                        planDuration: '',
+                        actualStart: '',
+                        actualEnd: '',
+                        actualDuration: '',
+                        planBarWidth: 0,
+                        actualBarWidth: 0
+                    }
+                ],
+                selectedTasks: [] // 選択中のタスクを格納する配列
+            },
+            methods: {
+                indentLeft: function () {
+                    if ($selectedRow != null) {
+                        let indent = parseInt($selectedRow.css("text-indent")) - indentPx;
+                        if (0 <= indent) $selectedRow.css("text-indent", indent + "px");
+                    }
+                },
+                indentRight: function () {
+                    if ($selectedRow != null) {
+                        let indent = parseInt($selectedRow.css("text-indent")) + indentPx;
+                        if (indent <= indentPx * 3) $selectedRow.css("text-indent", indent + "px");
+                    }
+                },
+                moveStart: function (task, isPlan) {
+                    let stPos = datePositions[task.planStart];
+                    let $bar = isPlan ? task.planBarWidth : task.actualBarWidth;
+                    $bar = stPos + "px";
+
+                    let edPos = datePositions[task.planEnd];
+                    let width = edPos + widAdd - stPos + "px";
+                    if (isPlan) {
+                        task.planBarWidth = width;
+                    } else {
+                        task.actualBarWidth = width;
+                    }
+                },
+                moveEnd: function (task, isPlan) {
+                    let edPos = datePositions[task.planEnd];
+                    let width = edPos + widAdd - task.planBarWidth + "px";
+                    if (isPlan) {
+                        task.planBarWidth = width;
+                    } else {
+                        task.actualBarWidth = width;
+                    }
+                },
+                calcDifDay: function (task, isPlan) {
+                    let stDate = isPlan ? task.planStart : task.actualStart;
+                    let edDate = isPlan ? task.planEnd : task.actualEnd;
+                    if (!isEmpty(stDate) && !isEmpty(edDate)) {
+                        let diff = diffDays(new Date(edDate), new Date(stDate));
+                        if (isPlan) {
+                            task.planDuration = diff;
+                        } else {
+                            task.actualDuration = diff;
+                        }
+                    }
+                },
+                selectTask: function (task) {
+                    if (this.selectedTasks.includes(task)) {
+                        // すでに選択済みの場合、選択を解除
+                        this.selectedTasks.splice(this.selectedTasks.indexOf(task), 1);
+                    } else {
+                        // 未選択の場合、選択を追加
+                        this.selectedTasks.push(task);
+                    }
+                },
+                onDragEnd: function () {
+                    // ドラッグ操作が終了したときに呼ばれる
+                    // 選択中のタスクを新しい順序に従って更新
+                    this.tasks = this.selectedTasks.concat(this.tasks.filter(task => !this.selectedTasks.includes(task)));
+                    this.selectedTasks = []; // 選択をクリア
+                }
+            }
+
+        });
+    </script>
+</body>
+
+</html>
