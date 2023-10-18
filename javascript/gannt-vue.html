@@ -194,47 +194,56 @@
                     }
                 ],
                 selectedTasks: [],
+                datePositions: {},
+                $selectedRow: null,
+                selectRow: "ui-selected",
+                indentPx: 12,
+                datePositions: [],
+                widAdd: 19,
             },
             methods: {
                 indentLeft: function () {
-                    if ($selectedRow != null) {
-                        let indent = parseInt($selectedRow.css("text-indent")) - indentPx;
-                        if (0 <= indent) $selectedRow.css("text-indent", indent + "px");
+                    if (this.selectedRow != null) {
+                        let indent = parseInt(this.selectedRow.css("text-indent")) - this.indentPx;
+                        if (0 <= indent) this.selectedRow.css("text-indent", indent + "px");
                     }
                 },
                 indentRight: function () {
-                    if ($selectedRow != null) {
-                        let indent = parseInt($selectedRow.css("text-indent")) + indentPx;
-                        if (indent <= indentPx * 3) $selectedRow.css("text-indent", indent + "px");
+                    if (this.selectedRow != null) {
+                        let indent = parseInt(this.selectedRow.css("text-indent")) + this.indentPx;
+                        if (indent <= this.indentPx * 3) this.selectedRow.css("text-indent", indent + "px");
                     }
                 },
                 moveStart: function (task, isPlan) {
-                    let stPos = datePositions[task.planStart];
-                    let $bar = isPlan ? task.planBarWidth : task.actualBarWidth;
-                    $bar = stPos + "px";
-
-                    let edPos = datePositions[task.planEnd];
-                    let width = edPos + widAdd - stPos + "px";
-                    if (isPlan) {
-                        task.planBarWidth = width;
-                    } else {
-                        task.actualBarWidth = width;
+                    let stPos = this.datePositions[isPlan ? task.planStart : task.actualStart];
+                    let edPos = this.datePositions[isPlan ? task.planEnd : task.actualEnd];
+                    if (!this.isEmpty(stPos) && !this.isEmpty(edPos)) {
+                        let width = edPos + this.widAdd - stPos + "px";
+                        if (isPlan) {
+                            task.planBarWidth = width;
+                            task.planDuration = this.diffDays(new Date(task.planEnd), new Date(task.planStart));
+                        } else {
+                            task.actualBarWidth = width;
+                            task.actualDuration = this.diffDays(new Date(task.actualEnd), new Date(task.actualStart));
+                        }
                     }
                 },
                 moveEnd: function (task, isPlan) {
-                    let edPos = datePositions[task.planEnd];
-                    let width = edPos + widAdd - task.planBarWidth + "px";
+                    let edPos = this.datePositions[isPlan ? task.planEnd : task.actualEnd];
+                    let width = edPos + this.widAdd - (isPlan ? task.planBarWidth : task.actualBarWidth) + "px";
                     if (isPlan) {
                         task.planBarWidth = width;
+                        task.planDuration = this.diffDays(new Date(task.planEnd), new Date(task.planStart));
                     } else {
                         task.actualBarWidth = width;
+                        task.actualDuration = this.diffDays(new Date(task.actualEnd), new Date(task.actualStart));
                     }
                 },
                 calcDifDay: function (task, isPlan) {
                     let stDate = isPlan ? task.planStart : task.actualStart;
                     let edDate = isPlan ? task.planEnd : task.actualEnd;
-                    if (!isEmpty(stDate) && !isEmpty(edDate)) {
-                        let diff = diffDays(new Date(edDate), new Date(stDate));
+                    if (!this.isEmpty(stDate) && !this.isEmpty(edDate)) {
+                        let diff = this.diffDays(new Date(edDate), new Date(stDate));
                         if (isPlan) {
                             task.planDuration = diff;
                         } else {
@@ -253,30 +262,32 @@
                         }
                     }
                 },
-
-                // 追加: 選択したタスクをドラッグ&ドロップで移動
-                handleDragStart(event, task) {
-                    event.dataTransfer.setData('text/plain', task.id.toString());
-                },
-                handleDragStart(event, task) {
+                handleDragStart: function (event, task) {
                     event.dataTransfer.setData('text/plain', task.id.toString());
                 },
                 handleDragOver: function (event) {
                     event.preventDefault();
                 },
-                handleDrop(event, targetTask) {
+                handleDrop: function (event, targetTask) {
                     event.preventDefault();
                     const taskId = parseInt(event.dataTransfer.getData('text/plain'));
                     const taskToMove = this.tasks.find(task => task.id === taskId);
                     if (taskToMove) {
-                        // ドラッグ&ドロップでタスクを移動
                         const currentIndex = this.tasks.indexOf(taskToMove);
                         const targetIndex = this.tasks.indexOf(targetTask);
                         this.tasks.splice(currentIndex, 1);
                         this.tasks.splice(targetIndex, 0, taskToMove);
                     }
                 },
-
+                diffDays: function (ed, st) {
+                    var diffTime = ed.getTime() - st.getTime();
+                    var diffDay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    return ++diffDay;
+                },
+                // 空文字チェック
+                isEmpty(val) {
+                    return val == null || val == "";
+                }
             }
 
         });
